@@ -28,7 +28,7 @@ int main() {
             perror("fork");
             exit(1);
         } else if (pids[i] == 0) {
-            execl("./producer", "producer", nullptr);
+            execl("./producer", "producer", std::to_string(i+1).c_str(), nullptr);
             perror("execl");
             exit(1);
         }
@@ -40,7 +40,7 @@ int main() {
             perror("fork");
             exit(1);
         } else if (pids[i + 2] == 0) {
-            execl("./consumer", "consumer", nullptr);
+            execl("./consumer", "consumer", std::to_string(i+1).c_str(), nullptr);
             perror("execl");
             exit(1);
         }

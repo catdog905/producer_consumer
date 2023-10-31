@@ -20,7 +20,9 @@ void print_buffer(SharedData* shared_data) {
 }
 
 
-int main() {
+int main(int argc, char* argv[]) {
+    int producer_id = argc > 1 ? std::stoi(argv[1]) : 1;
+
     // Get shared memory
     int shm_id = shmget(SHM_KEY, sizeof(SharedData), 0666);
     auto *shared_data = static_cast<SharedData *>(shmat(shm_id, nullptr, 0));
@@ -37,7 +39,7 @@ int main() {
         int index = shared_data->count % BUFFER_SIZE;
         shared_data->buffer[index] = i;
         shared_data->count++;
-        std::cout << "Produced: " << i << "; ";
+        std::cout << "Producer{" << producer_id  << "}; Produced: " << i << "; ";
         print_buffer(shared_data);
         std::cout << std::endl;
       
