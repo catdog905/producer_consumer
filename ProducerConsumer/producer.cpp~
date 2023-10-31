@@ -13,11 +13,11 @@ void signal(int sem_id) {
 }
 
 void print_buffer(SharedData* shared_data) {
-  std::cout << "Current buffer state: ";
   for (int i = 0; i < shared_data->count; i++) {
     std::cout << shared_data->buffer[i] << " ";
   }
 }
+
 
 int main() {
     // Get shared memory
@@ -29,22 +29,21 @@ int main() {
     int sem_empty = semget(SEM_EMPTY_KEY, 1, 0666);
     int sem_full = semget(SEM_FULL_KEY, 1, 0666);
 
-    for (int i = 0; i < 4; ++i) {  // Consuming 4 values
-        wait(sem_full);
+    for (int i = 0; i < 6; ++i) {  // Producing 6 values
+        wait(sem_empty);
         wait(sem_mutex);
 
-        int index = (shared_data->count - 1) % BUFFER_SIZE;
-        int item = shared_data->buffer[index];
-        shared_data->count--;
-        std::cout << "Consumed: " << item << "; ";
+        int index = shared_data->count % BUFFER_SIZE;
+        shared_data->buffer[index] = i;
+        shared_data->count++;
+        std::cout << "Produced: " << i;
         print_buffer(shared_data);
         std::cout << std::endl;
-
-
+      
         signal(sem_mutex);
-        signal(sem_empty);
+        signal(sem_full);
 
-        sleep(2);
+        sleep(1);
     }
 
     shmdt(shared_data);
