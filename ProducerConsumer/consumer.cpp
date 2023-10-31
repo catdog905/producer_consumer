@@ -1,6 +1,8 @@
 #include "shared.h"
 #include <iostream>
 #include <unistd.h>
+#include <chrono>
+#include <iomanip>
 
 void wait(int sem_id) {
     struct sembuf p = {0, -1, SEM_UNDO};
@@ -39,6 +41,9 @@ int main(int argc, char* argv[]) {
         int index = (shared_data->count - 1) % BUFFER_SIZE;
         int item = shared_data->buffer[index];
         shared_data->count--;
+         auto now = std::chrono::system_clock::now();
+        time_t now_c = std::chrono::system_clock::to_time_t(now);
+        std::cout << std::put_time(std::localtime(&now_c), "%F %T") << "; ";
         std::cout << "Consumer{" << consumer_id << "}; Consumed: " << item << "; ";
         print_buffer(shared_data);
         std::cout << std::endl;
