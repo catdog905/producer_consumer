@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <iomanip>
 #include <chrono>
+#include <thread>
+#include <random>
 
 void wait(int sem_id) {
     struct sembuf p = {0, -1, SEM_UNDO};
@@ -21,6 +23,15 @@ void print_buffer(SharedData* shared_data) {
   }
 }
 
+void random_wait(int start, int stop) {
+    std::random_device rd;
+    std::default_random_engine generator(rd());
+    std::uniform_int_distribution<int> distribution(start, stop);
+
+    int wait_time = distribution(generator);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(wait_time));
+}
 
 int main(int argc, char* argv[]) {
     int producer_id = argc > 1 ? std::stoi(argv[1]) : 1;
@@ -51,7 +62,7 @@ int main(int argc, char* argv[]) {
         signal(sem_mutex);
         signal(sem_full);
 
-        sleep(1);
+        random_wait(1000, 1500);
     }
 
     shmdt(shared_data);

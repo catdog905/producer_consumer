@@ -2,7 +2,10 @@
 #include <iostream>
 #include <unistd.h>
 #include <chrono>
-#include <iomapip>
+#include <iomanip>
+#include <random>
+#include <thread>
+#include <chrono>
 
 void wait(int sem_id) {
     struct sembuf p = {0, -1, SEM_UNDO};
@@ -19,6 +22,17 @@ void print_buffer(SharedData* shared_data) {
   for (int i = 0; i < shared_data->count; i++) {
     std::cout << shared_data->buffer[i] << " ";
   }
+}
+
+
+void random_wait(int start, int stop) {
+    std::random_device rd;
+    std::default_random_engine generator(rd());
+    std::uniform_int_distribution<int> distribution(start, stop);
+
+    int wait_time = distribution(generator);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(wait_time));
 }
 
 int main(int argc, char* argv[]) {
@@ -51,8 +65,7 @@ int main(int argc, char* argv[]) {
 
         signal(sem_mutex);
         signal(sem_empty);
-
-        sleep(2);
+        random_wait(1000, 3000);
     }
 
     shmdt(shared_data);
